@@ -78,7 +78,7 @@ export const App: React.FC<Props> = ({ delay = 300, onSelected }) => {
                   <div
                     className="dropdown-item"
                     data-cy="suggestion-item"
-                    key={`${people.name}-${people.born}`}
+                    key={people.slug}
                     onClick={() => {
                       setQuery(people.name);
                       setSelectedPerson(people);
