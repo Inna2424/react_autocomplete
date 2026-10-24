@@ -3,15 +3,21 @@ import './App.scss';
 import { peopleFromServer } from './data/people';
 import { Person } from './types/Person';
 
-export const App: React.FC = () => {
+interface Props {
+  delay?: number;
+  onSelected?: (person: Person | null) => void;
+}
+
+export const App: React.FC<Props> = ({ delay = 300, onSelected }) => {
   const [query, setQuery] = useState('');
   const [appliedQuery, setAppliedQuery] = useState('');
   const [focus, setFocus] = useState(false);
   const [selectedPerson, setSelectedPerson] = useState<Person | null>(null);
 
-  const filteredUser = peopleFromServer.filter(user =>
-    user.name.includes(appliedQuery),
-  );
+  const filteredUser =
+    appliedQuery.length > 0 && appliedQuery.trim() === ''
+      ? []
+      : peopleFromServer.filter(user => user.name.includes(appliedQuery));
 
   const timerId = useRef(0);
 
@@ -24,7 +30,7 @@ export const App: React.FC = () => {
 
     timerId.current = window.setTimeout(() => {
       setAppliedQuery(event.target.value);
-    }, 1000);
+    }, delay);
   };
 
   return (
@@ -72,10 +78,14 @@ export const App: React.FC = () => {
                   <div
                     className="dropdown-item"
                     data-cy="suggestion-item"
-                    key={people.name}
+                    key={`${people.name}-${people.born}`}
                     onClick={() => {
                       setQuery(people.name);
                       setSelectedPerson(people);
+
+                      if (onSelected) {
+                        onSelected(people);
+                      }
                     }}
                   >
                     <p className="has-text-link">{people.name}</p>
@@ -86,7 +96,7 @@ export const App: React.FC = () => {
           </div>
         </div>
 
-        {filteredUser.length === 0 && (
+        {appliedQuery.trim() !== '' && filteredUser.length === 0 && (
           <div
             className="
             notification
